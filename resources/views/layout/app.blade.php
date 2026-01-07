@@ -64,11 +64,19 @@
         }
 
         .sidebar {
-            background: linear-gradient(135deg, #11A1C5 0%, #11A1C5 100%);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            width: 260px;
-            transition: all 0.3s ease;
-        }
+    background: linear-gradient(
+        135deg,
+        #2d6520 0%,
+        #6fae2d 45%,
+        #e3f541 130%
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.35);
+    width: 260px;
+    transition: all 0.3s ease;
+}
+
 
         .card {
             border-radius: 16px;
@@ -225,8 +233,12 @@
             <!-- Logo y nombre -->
             <div class="flex items-center justify-between mb-10">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-chart-line text-2xl text-white"></i>
-                    <span class="logo-text text-xl font-bold text-white">SIFAC-AT</span>
+                    <img
+                        src="{{ asset('IMG_4761.png') }}"
+                        alt="Logo SGAM-SJ"
+                        class="w-8 h-8"
+                    >
+                    <span class="logo-text text-xl font-bold text-white">SGAM-SJ</span>
                 </div>
                 <button id="toggle-sidebar" class="text-white p-1 rounded-full hover:bg-yellow-400/20 transition">
                     <i class="fas fa-bars"></i>
@@ -270,9 +282,11 @@
         <div id="submenu-solicitudes" class="ml-8 hidden space-y-1 text-sm text-gray-200">
             <a href="/view/catergories" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Categorías</span></a>
             <a href="/medidas/view" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Unidades</span></a>
-            <a href="/ubicaciones/view" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Ubicación</span></a>
+            <a href="/view/programs" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Programas</span></a>
             <a href="/productos/view" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Productos</span></a>
             <a href="/bajas/products" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Baja Existencia</span></a>
+            <a href="/bajas/products" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Renglones</span></a>
+
 
         </div>
     </div>
@@ -373,7 +387,7 @@
                     <button id="mobile-menu-button" class="md:hidden mr-4 text-gray-600">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
-                    <h1 class="text-xl font-bold text-gray-800">Venta de Materiales Electricos</h1>
+                    <h1 class="text-xl font-bold text-gray-800">Sistema de Gestión de Almacén</h1>
                 </div>
 
                 <div class="flex items-center space-x-6">
