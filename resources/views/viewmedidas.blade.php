@@ -18,7 +18,7 @@
     </div>
 
     <!-- Tabla -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden w-full mt-4">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden w-fullf mt-4">
 
         <div class="px-4 py-2 font-semibold text-white  shadow-sm" style="background-color:#6fae2d;">MEDIDAS</div>
 
@@ -63,7 +63,7 @@
                 <button type="button" onclick="closeModalMedida()"
                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Cancelar</button>
                 <button type="submit"
-                        class="bg-[#6fae2d] hover:bg-[#0e90b2] text-white px-4 py-2 rounded">Guardar</button>
+                        class="bg-[#6fae2d] hover:bg-[#6fae2d] text-white px-4 py-2 rounded">Guardar</button>
             </div>
         </form>
     </div>
@@ -189,4 +189,156 @@ document.getElementById('formMedida').addEventListener('submit', e => {
 
 document.addEventListener('DOMContentLoaded', loadMedidas);
 </script>
+@endsection
+@extends('layout.app')
+
+@section('contents')
+<div class="-mx-4 sm:-mx-6 lg:-mx-8 mt-6">
+
+    <!-- Encabezado -->
+    <div class="bg-white shadow p-4 flex justify-between items-center w-full">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-700">
+                Administración de Empleados
+            </h1>
+        </div>
+        <button onclick="openModalCategoria()"
+            class="bg-[#6fae2d] hover:bg-[#6fae2d] text-white px-4 py-2 text-sm font-semibold rounded-lg shadow-md flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Agregar nuevo Empleado
+        </button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden w-full mt-4">
+        <div class="px-4 py-2 font-semibold text-white shadow-sm" style="background-color:#6fae2d;">
+            EMPLEADOS
+        </div>
+
+        <div class="p-4">
+            <table id="categorias-table" class="w-full text-left border-collapse">
+                <thead class="bg-gray-200 text-gray-700 text-sm uppercase">
+                    <tr>
+                        <th class="px-4 py-2">ID</th>
+                        <th class="px-4 py-2">Nombre</th>
+                        <th class="px-4 py-2">Puesto</th>
+                        <th class="px-4 py-2">Estado</th>
+                        <th class="px-4 py-2">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="categorias-table-body" class="text-sm text-gray-700"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL EMPLEADOS ================= -->
+<div id="modalCategoria" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 id="modalTitle" class="text-lg font-semibold text-gray-700">
+                Registrar Empleado
+            </h2>
+            <button onclick="closeModalCategoria()"
+                    class="text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+        </div>
+
+        <!-- Formulario -->
+        <form id="formCategoria" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @csrf
+            <input type="hidden" name="id_empleado" id="empleadoId">
+
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium">Nombre completo</label>
+                <input type="text" name="nombre_completo" id="nombre_completo" required
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Unidad</label>
+                <input type="text" name="unidad" id="unidad"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Puesto</label>
+                <input type="text" name="puesto" id="puesto"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Teléfono</label>
+                <input type="text" name="telefono" id="telefono"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">DPI</label>
+                <input type="text" name="dpi" id="dpi"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Sexo</label>
+                <select name="sexo" id="sexo" class="w-full border rounded px-3 py-2">
+                    <option value="">Seleccione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Tipo</label>
+                <input type="text" name="tipo" id="tipo"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Estado</label>
+                <select name="estado" id="estado" class="w-full border rounded px-3 py-2">
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Responsable</label>
+                <input type="text" name="responsable" id="responsable"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Director</label>
+                <input type="text" name="director" id="director"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Edad</label>
+                <input type="number" name="edad" id="edad"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Correo</label>
+                <input type="email" name="correo" id="correo"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+
+            <!-- Botones -->
+            <div class="md:col-span-2 flex justify-end gap-3 pt-4">
+                <button type="button" onclick="closeModalCategoria()"
+                        class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="bg-[#6fae2d] text-white px-4 py-2 rounded">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection

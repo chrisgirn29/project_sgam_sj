@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Moderno con Sidebar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="{{ asset('IMG_4761.png') }}" type="image/png">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
     <script>
   function toggleMenu(id) {
     const submenu = document.getElementById(id);
@@ -225,6 +227,11 @@
             }
         }
     </style>
+
+     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50">
     <!-- Barra lateral izquierda -->
@@ -283,10 +290,10 @@
             <a href="/view/catergories" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Categorías</span></a>
             <a href="/medidas/view" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Unidades</span></a>
             <a href="/view/programs" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Programas</span></a>
-            <a href="/productos/view" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Productos</span></a>
+            <a href="/products/view/createpro" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Productos</span></a>
             <a href="/bajas/products" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Baja Existencia</span></a>
-            <a href="/bajas/products" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Renglones</span></a>
-
+            <a href="/view/roles/see" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Renglones</span></a>
+            <a href="/ubicaciones/u/see" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Ubicaciones</span></a>
 
         </div>
     </div>
@@ -296,13 +303,13 @@
         <a href="#" onclick="toggleMenu('submenu-requisiciones')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-tasks text-lg"></i>
-                <span class="sidebar-text font-medium">Compras</span>
+                <span class="sidebar-text font-medium">Requisiciones</span>
             </div>
             <i class="fas fa-chevron-down"></i>
         </a>
         <div id="submenu-requisiciones" class="ml-8 hidden space-y-1 text-sm text-gray-200">
-            <a href="/view/register/cbuys" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Nueva Compra</span></a>
-            <a href="/detail/buys/list" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-list"></i><span>Listar Compras</span></a>
+            <a href="/view/see/req" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Nueva Requisicion</span></a>
+            <a href="/detail/buys/list" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-list"></i><span>Listar Requisicion</span></a>
         </div>
     </div>
 
@@ -311,13 +318,12 @@
         <a href="#" onclick="toggleMenu('submenu-prepedidos')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-box-open text-lg"></i>
-                <span class="sidebar-text font-medium">Ventas</span>
+                <span class="sidebar-text font-medium">Proceso</span>
             </div>
             <i class="fas fa-chevron-down"></i>
         </a>
         <div id="submenu-prepedidos" class="ml-8 hidden space-y-1 text-sm text-gray-200">
-            <a href="#" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Nuevo Pre-Pedido</span></a>
-            <a href="#" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-list"></i><span>Listar Pre-Pedido</span></a>
+            <a href="/view/listado/requisiciones" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Ver Proceso</span></a>
         </div>
     </div>
 
@@ -326,12 +332,12 @@
         <a href="#" onclick="toggleMenu('submenu-clientes')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-user-friends text-lg"></i>
-                <span class="sidebar-text font-medium">Clientes</span>
+                <span class="sidebar-text font-medium">Colaboradores</span>
             </div>
             <i class="fas fa-chevron-down"></i>
         </a>
         <div id="submenu-clientes" class="ml-8 hidden space-y-1 text-sm text-gray-200">
-            <a href="/clientes/view" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-user-plus"></i><span>Nuevo Cliente</span></a>
+            <a href="/see/employes" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-user-plus"></i><span>Nuevo Colaborador</span></a>
         </div>
     </div>
 
@@ -410,9 +416,18 @@
                             <a href="#" class="block px-4 py-2 text-gray-800 dropdown-link hover:text-white">
                                 <i class="fas fa-cog mr-2 text-white"></i>Configuración
                             </a>
-                            <a href="#" class="block px-4 py-2 text-gray-800 dropdown-link hover:text-white">
-                                <i class="fas fa-sign-out-alt mr-2 text-white"></i>Cerrar Sesión
-                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+    @csrf
+
+    <button
+        type="submit"
+        class="block w-full text-left px-4 py-2 text-gray-800 dropdown-link hover:text-white"
+    >
+        <i class="fas fa-sign-out-alt mr-2 text-white"></i>
+        Cerrar Sesión
+    </button>
+</form>
+
                         </div>
                     </div>
                 </div>
