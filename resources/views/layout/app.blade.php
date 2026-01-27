@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Moderno con Sidebar</title>
+    <title>SGAM-SJ</title>
     <link rel="icon" href="{{ asset('IMG_4761.png') }}" type="image/png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -233,6 +233,12 @@
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
+@php
+    $rol = optional(Auth::user())->rol_id;
+    $esAdmin = $rol == 2;
+    $esOperador = $rol == 1;
+@endphp
+
 <body class="bg-gray-50">
     <!-- Barra lateral izquierda -->
     <aside class="sidebar fixed h-full z-50">
@@ -256,28 +262,31 @@
 
             <!-- Perfil de usuario -->
             <div class="mt-8">
-                <div class="flex items-center space-x-3 p-2 rounded-lg profile-hover transition cursor-pointer">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80"
-                         alt="Perfil" class="w-10 h-10 rounded-full object-cover border-2 border-white">
-                    <div class="sidebar-text">
-                        <p class="font-medium text-white">{{ Auth::user()->name }}</p>
-                        <div class="flex items-center space-x-1">
-                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            <p class="text-xs text-green-400 font-semibold">En línea</p>
-                        </div>
-                    </div>
-
+            <div class="flex items-center space-x-3 p-2 rounded-lg profile-hover transition cursor-pointer">
+                <div class="w-10 h-10 rounded-full bg-orange-400 flex items-center justify-center border-2 border-oange-400">
+                    <i class="fas fa-user text-white"></i>
                 </div>
-                <br/>
-            </div>
-                <div class="space-y-2">
 
+                <div class="sidebar-text">
+                    {{ optional(Auth::user())->rol_id }}
+
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <p class="text-xs text-green-400 font-semibold">En línea</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <div class="space-y-2">
+    @if($esAdmin || $esOperador)
     <a href="#" class="flex items-center space-x-3 p-3 text-white menu-link active-nav-link">
         <i class="fas fa-home text-lg text-white"></i>
         <span class="sidebar-text font-medium">Dashboard</span>
     </a>
-
+    @endif
     <!-- Solicitudes -->
+
     <div class="group">
         <a href="#" onclick="toggleMenu('submenu-solicitudes')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
             <div class="flex items-center space-x-3">
@@ -286,6 +295,7 @@
             </div>
             <i class="fas fa-chevron-down"></i>
         </a>
+         @if($esAdmin)
         <div id="submenu-solicitudes" class="ml-8 hidden space-y-1 text-sm text-gray-200">
             <a href="/view/catergories" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Categorías</span></a>
             <a href="/medidas/view" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Unidades</span></a>
@@ -296,9 +306,11 @@
             <a href="/ubicaciones/u/see" class="flex items-center space-x-2 hover:text-[#124BAB]"><i class="fas fa-plus-circle"></i><span>Ubicaciones</span></a>
 
         </div>
+        @endif
     </div>
 
     <!-- Compras -->
+    @if($esAdmin || $esOperador)
     <div class="group">
         <a href="#" onclick="toggleMenu('submenu-requisiciones')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
             <div class="flex items-center space-x-3">
@@ -309,11 +321,14 @@
         </a>
         <div id="submenu-requisiciones" class="ml-8 hidden space-y-1 text-sm text-gray-200">
             <a href="/view/see/req" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Nueva Requisicion</span></a>
-            <a href="/detail/buys/list" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-list"></i><span>Listar Requisicion</span></a>
+            @if($esAdmin)
+            <a href="/detail/requisiciones/view" class="flex items-center space-x-2 hover:text-white"><i class="fa-solid fa-list"></i></i><span>Detalle Requisiciones</span></a>
+             @endif
         </div>
     </div>
-
+    @endif
     <!-- Ventas -->
+    @if($esAdmin || $esOperador)
     <div class="group">
         <a href="#" onclick="toggleMenu('submenu-prepedidos')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
             <div class="flex items-center space-x-3">
@@ -323,9 +338,58 @@
             <i class="fas fa-chevron-down"></i>
         </a>
         <div id="submenu-prepedidos" class="ml-8 hidden space-y-1 text-sm text-gray-200">
-            <a href="/view/listado/requisiciones" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Ver Proceso</span></a>
+            <a href="/lista/view/proceso/requisciones" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-plus-circle"></i><span>Ver Proceso</span></a>
         </div>
     </div>
+     @endif
+        <!-- Recepciones -->
+
+        <div class="group">
+            <a href="#" onclick="toggleMenu('submenu-recepciones')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-dolly text-lg"></i>
+                    <span class="sidebar-text font-medium">Recepciones</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+             @if($esAdmin)
+            <div id="submenu-recepciones" class="ml-8 hidden space-y-1 text-sm text-gray-200">
+                <a href="/view/recepcion" class="flex items-center space-x-2 hover:text-white">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nueva Recepción</span>
+                </a>
+                <a href="/view/detail/recepciones/vista" class="flex items-center space-x-2 hover:text-white">
+                    <i class="fas fa-list"></i>
+                    <span>Listar Recepciones</span>
+                </a>
+            </div>
+             @endif
+        </div>
+
+        <!-- Despachos -->
+        <div class="group">
+            <a href="#" onclick="toggleMenu('submenu-despachos')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-truck-loading text-lg"></i>
+                    <span class="sidebar-text font-medium">Despachos</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+             @if($esAdmin)
+            <div id="submenu-despachos" class="ml-8 hidden space-y-1 text-sm text-gray-200">
+                <a href="/view/despacho" class="flex items-center space-x-2 hover:text-white">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nuevo Despacho</span>
+                </a>
+                <a href="/view/detail/entregas/vista" class="flex items-center space-x-2 hover:text-white">
+                    <i class="fas fa-list"></i>
+                    <span>Listar Despachos</span>
+                </a>
+            </div>
+            @endif
+        </div>
+
+
 
     <!-- Clientes -->
     <div class="group">
@@ -336,21 +400,55 @@
             </div>
             <i class="fas fa-chevron-down"></i>
         </a>
+         @if($esAdmin)
         <div id="submenu-clientes" class="ml-8 hidden space-y-1 text-sm text-gray-200">
             <a href="/see/employes" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-user-plus"></i><span>Nuevo Colaborador</span></a>
         </div>
+        @endif
     </div>
 
-    <a href="#" class="flex items-center space-x-3 p-3 text-gray-300 menu-link hover:bg-yellow-400/20 rounded-lg transition">
-        <i class="fas fa-users text-lg"></i>
-        <span class="sidebar-text font-medium">Colaboradores</span>
-    </a>
+    <!-- MENÚ PRESUPUESTO -->
+<div class="space-y-1">
 
-    <a href="/proveedores/view" class="flex items-center space-x-3 p-3 text-gray-300 menu-link hover:bg-yellow-400/20 rounded-lg transition">
+    <!-- BOTÓN PRINCIPAL -->
+    <button
+        class="flex items-center justify-between w-full p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition group"
+        onclick="document.getElementById('submenu-cdp').classList.toggle('hidden')"
+    >
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-coins text-lg"></i>
+            <span class="sidebar-text font-medium">Presupuesto</span>
+        </div>
+        <i class="fas fa-chevron-down text-sm transition group-hover:rotate-180"></i>
+    </button>
+     @if($esAdmin)
+    <!-- SUBMENÚ -->
+    <div id="submenu-cdp" class="hidden ml-6 space-y-1">
+
+        <!-- CREAR CDP -->
+        <a href="/cdp/crear"
+           class="flex items-center space-x-3 p-2 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition">
+            <i class="fas fa-file-circle-plus text-sm text-yellow-400"></i>
+            <span class="sidebar-text">Crear CDP</span>
+        </a>
+
+        <!-- LISTAR CDP -->
+        <a href="/view/detail/cdp/view"
+           class="flex items-center space-x-3 p-2 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition">
+            <i class="fas fa-list text-sm text-green-400"></i>
+            <span class="sidebar-text">Listar CDP</span>
+        </a>
+
+    </div>
+    @endif
+</div>
+
+     @if($esAdmin)
+    <a href="/view/form/suppliers" class="flex items-center space-x-3 p-3 text-gray-300 menu-link hover:bg-yellow-400/20 rounded-lg transition">
         <i class="fas fa-people-carry text-lg"></i>
         <span class="sidebar-text font-medium">Proveedores</span>
     </a>
-
+    @endif
     <!-- Administración -->
     <div class="group">
         <a href="#" onclick="toggleMenu('submenu-administracion')" class="flex items-center justify-between p-3 text-gray-300 hover:bg-yellow-400/20 rounded-lg transition cursor-pointer">
@@ -360,12 +458,13 @@
             </div>
             <i class="fas fa-chevron-down"></i>
         </a>
+         @if($esAdmin)
         <div id="submenu-administracion" class="ml-8 hidden space-y-1 text-sm text-gray-200">
-            <a href="/roles/view" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-user-tag"></i><span>Roles</span></a>
-            <a href="/users/view" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-users"></i><span>Usuarios</span></a>
-            <a href="#" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-briefcase"></i><span>Cargos</span></a>
-            <a href="/company" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-briefcase"></i><span>Empresa</span></a>
+            <a href="/view/form/rols" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-user-tag"></i><span>Roles</span></a>
+            <a href="/view/form/users" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-users"></i><span>Usuarios</span></a>
+            <a href="/view/company" class="flex items-center space-x-2 hover:text-white"><i class="fas fa-briefcase"></i><span>Empresa</span></a>
         </div>
+        @endif
     </div>
 
 </div>
@@ -404,32 +503,18 @@
                         <span class="notification-badge absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full"></span>
                     </div>
 
-                    <div class="relative group">
-                        <button class="flex items-center space-x-2">
-                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80"
-                                 alt="Perfil" class="w-10 h-10 rounded-full object-cover border-2 border-blue">
-                        </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 hidden group-hover:block z-10">
-                            <a href="#" class="block px-4 py-2 text-gray-800 dropdown-link hover:text-white">
-                                <i class="fas fa-user mr-2 text-white"></i>Mi Perfil
-                            </a>
-                            <a href="#" class="block px-4 py-2 text-gray-800 dropdown-link hover:text-white">
-                                <i class="fas fa-cog mr-2 text-white"></i>Configuración
-                            </a>
-                            <form method="POST" action="{{ route('logout') }}">
-    @csrf
 
+                        <form method="POST" action="{{ route('logout') }}">
+    @csrf
     <button
         type="submit"
-        class="block w-full text-left px-4 py-2 text-gray-800 dropdown-link hover:text-white"
+        class="flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition"
     >
-        <i class="fas fa-sign-out-alt mr-2 text-white"></i>
+        <i class="fas fa-sign-out-alt mr-2"></i>
         Cerrar Sesión
     </button>
 </form>
 
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
@@ -448,7 +533,7 @@
 
             <!-- Footer -->
             <footer class="mt-10 pt-6 border-t border-gray-200 text-center text-gray-500">
-                <p>© 2025 SIFAC ANALITICS. Todos los derechos reservados.</p>
+                <p>© 2026 Norio Systems. Todos los derechos reservados.</p>
 
             </footer>
         </div>
@@ -517,6 +602,14 @@
             upgradeBtn.classList.toggle('glow');
             setTimeout(() => upgradeBtn.classList.toggle('glow'), 1000);
         }, 3000);
+        function accesoDenegado() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso denegado',
+            text: 'No tienes permisos para acceder a este módulo',
+            confirmButtonColor: '#facc15'
+        });
+    }
     </script>
 </body>
 </html>

@@ -17,7 +17,209 @@ class ProductoController extends Controller
     {
         return view('productos.bajas');
     }
+public function imprimirKardex($id_producto)
+{
+    // ===== VARIABLES MYSQL =====
+    DB::statement("SET @saldo_cantidad := 0");
+    DB::statement("SET @saldo_total := 0");
 
+    // ===== PRODUCTO + MEDIDA =====
+    $producto = DB::table('productos as pr')
+        ->join('medidas as m', 'm.id_medida', '=', 'pr.id_medida')
+        ->select(
+            'pr.id_producto',
+            'pr.nombre',
+            'm.descripcion as medida'
+        )
+        ->where('pr.id_producto', $id_producto)
+        ->first();
+
+    // ===== KARDEX =====
+    $kardex = DB::select("
+        SELECT
+            k.proveedor_destino,
+            k.fecha_evento,
+            k.fecha_entrada,
+            k.numero_factura,
+            k.cantidad_entrada,
+            k.valor_unitario_entrada,
+            k.valor_total_entrada,
+            k.no_salida,
+            k.cantidad_salida,
+            k.valor_unitario_salida,
+            k.valor_total_salida,
+
+            (@saldo_cantidad := @saldo_cantidad
+                + k.cantidad_entrada
+                - k.cantidad_salida) AS saldo_cantidad,
+
+            k.saldo_unitario_evento AS saldo_precio_unitario,
+
+            (@saldo_total := @saldo_total
+                + k.valor_total_entrada
+                - k.valor_total_salida) AS saldo_total
+
+        FROM (
+
+            /* ===== RECEPCIONES ===== */
+            SELECT
+                p.nombre AS proveedor_destino,
+                r.fecha_recepcion AS fecha_evento,
+                r.fecha_recepcion AS fecha_entrada,
+                r.numero_factura,
+                rd.cantidad AS cantidad_entrada,
+                rd.precio_unitario AS valor_unitario_entrada,
+                rd.subtotal AS valor_total_entrada,
+
+                NULL AS no_salida,
+                0 AS cantidad_salida,
+                0 AS valor_unitario_salida,
+                0 AS valor_total_salida,
+
+                rd.precio_unitario AS saldo_unitario_evento,
+                1 AS orden_evento
+
+            FROM recepcion_detalles rd
+            JOIN recepciones r ON r.id_recepcion = rd.id_recepcion
+            JOIN proveedores p ON p.id_proveedor = r.id_proveedor
+            WHERE rd.id_producto = ?
+
+            UNION ALL
+
+            /* ===== ENTREGAS ===== */
+            SELECT
+                emp.nombre_completo AS proveedor_destino,
+                e.fecha_entrega AS fecha_evento,
+                NULL,
+                NULL,
+                0,
+                0,
+                0,
+
+                e.numero_documento AS no_salida,
+                ed.cantidad AS cantidad_salida,
+                ed.precio_unitario AS valor_unitario_salida,
+                ed.subtotal AS valor_total_salida,
+
+                ed.precio_unitario AS saldo_unitario_evento,
+                2 AS orden_evento
+
+            FROM entrega_detalles ed
+            JOIN entregas e ON e.id_entrega = ed.id_entrega
+            JOIN empleados emp ON emp.id_empleado = e.id_empleado
+            WHERE ed.id_producto = ?
+
+        ) k
+        ORDER BY k.fecha_evento, k.orden_evento
+    ", [$id_producto, $id_producto]);
+
+    // ===== PDF =====
+    return Pdf::loadView(
+            'reports.kardex',
+            compact('kardex', 'producto')
+        )
+        ->setPaper('legal', 'landscape')
+        ->stream('kardex_inventario.pdf');
+}
+public function kardex($id_producto)
+{
+    // ===== VARIABLES MYSQL =====
+    DB::statement("SET @saldo_cantidad := 0");
+    DB::statement("SET @saldo_total := 0");
+
+    $kardex = DB::select("
+        SELECT
+            k.proveedor_destino,
+            k.fecha_evento,
+            k.fecha_entrada,
+            k.numero_factura,
+            k.cantidad_entrada,
+            k.valor_unitario_entrada,
+            k.valor_total_entrada,
+            k.no_salida,
+            k.cantidad_salida,
+            k.valor_unitario_salida,
+            k.valor_total_salida,
+
+            (@saldo_cantidad := @saldo_cantidad
+                + k.cantidad_entrada
+                - k.cantidad_salida) AS saldo_cantidad,
+
+            k.saldo_unitario_evento AS saldo_precio_unitario,
+
+            (@saldo_total := @saldo_total
+                + k.valor_total_entrada
+                - k.valor_total_salida) AS saldo_total
+
+        FROM (
+            /* ===== RECEPCIONES ===== */
+            SELECT
+                p.nombre AS proveedor_destino,
+                r.fecha_recepcion AS fecha_evento,
+                r.fecha_recepcion AS fecha_entrada,
+                r.numero_factura,
+                rd.cantidad AS cantidad_entrada,
+                rd.precio_unitario AS valor_unitario_entrada,
+                rd.subtotal AS valor_total_entrada,
+
+                NULL AS no_salida,
+                0 AS cantidad_salida,
+                0 AS valor_unitario_salida,
+                0 AS valor_total_salida,
+
+                rd.precio_unitario AS saldo_unitario_evento,
+                1 AS orden_evento
+
+            FROM recepcion_detalles rd
+            JOIN recepciones r ON r.id_recepcion = rd.id_recepcion
+            JOIN proveedores p ON p.id_proveedor = r.id_proveedor
+            WHERE rd.id_producto = ?
+
+            UNION ALL
+
+            /* ===== ENTREGAS ===== */
+            SELECT
+                emp.nombre_completo AS proveedor_destino,
+                e.fecha_entrega AS fecha_evento,
+                NULL,
+                NULL,
+                0,
+                0,
+                0,
+
+                e.numero_documento AS no_salida,
+                ed.cantidad AS cantidad_salida,
+                ed.precio_unitario AS valor_unitario_salida,
+                ed.subtotal AS valor_total_salida,
+
+                ed.precio_unitario AS saldo_unitario_evento,
+                2 AS orden_evento
+
+            FROM entrega_detalles ed
+            JOIN entregas e ON e.id_entrega = ed.id_entrega
+            JOIN empleados emp ON emp.id_empleado = e.id_empleado
+            WHERE ed.id_producto = ?
+        ) k
+        ORDER BY k.fecha_evento, k.orden_evento
+    ", [$id_producto, $id_producto]);
+
+    /* ===== INFO DEL PRODUCTO + MEDIDA ===== */
+    $producto = DB::table('productos as pr')
+        ->join('medidas as m', 'm.id_medida', '=', 'pr.id_medida')
+        ->select(
+            'pr.id_producto',
+            'pr.nombre',
+            'm.descripcion as medida'
+        )
+        ->where('pr.id_producto', $id_producto)
+        ->first();
+
+    return view('viewkardex', compact(
+        'kardex',
+        'id_producto',
+        'producto'
+    ));
+}
     public function bajasPDF()
     {
         $productos = Producto::join('categorias', 'productos.id_categoria', '=', 'categorias.id_categoria')

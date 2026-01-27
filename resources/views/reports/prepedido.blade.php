@@ -17,7 +17,7 @@
         box-sizing: border-box;
     }
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Times New Roman", serif;
             font-size: 12px;
             margin: 0;
             padding: 0;
@@ -25,7 +25,7 @@
             background: #fff;
         }
         .bg-green-strong {
-    background: #1f5d3a;   /* verde fuerte */
+    background: #B1D42F;   /* verde fuerte */
     color: #ffffff;        /* letras blancas */
 }
 
@@ -253,8 +253,8 @@ tr {
 
         <div class="firma">
             <br>
-            <span>{{ $nombre ?? 'Nombre del Firmante' }}</span><br>
-            <span>{{ $puesto ?? 'Cargo del Firmante' }}</span>
+             <strong><span>{{ $nombre ?? 'Nombre del Firmante' }}</span><br> </strong>
+             <strong><span>{{ $puesto ?? 'Cargo del Firmante' }}</span> </strong>
         </div>
 
     </div>

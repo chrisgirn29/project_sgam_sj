@@ -12,7 +12,7 @@ use App\Http\Controllers\RequisicionDetalleController;
 use App\Models\RequisicionDetalle;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-
+use App\Models\Proveedor;
 
 use Illuminate\Http\Request;
 
@@ -28,6 +28,11 @@ public function ajaxEmpleados()
             ->select('id_empleado', 'nombre_completo', 'unidad', 'puesto')
             ->get()
     );
+}
+public function index()
+{
+    $requisiciones = Requisicion::orderBy('id_requisicion', 'desc')->get();
+    return view('requisiciones.index', compact('requisiciones'));
 }
 
 public function create()
@@ -169,6 +174,30 @@ public function getSolicitudesEmitidas()
 
     return response()->json($data);
 }
+public function getListadoss()
+{
+    $data = DB::table('requisiciones as r')
+        ->join('requisicion_detalles as rd', 'rd.id_requisicion', '=', 'r.id_requisicion')
+        ->join('empleados as e', 'e.id_empleado', '=', 'r.id_empleado')
+        ->whereColumn('rd.cantidad_recibida', '<', 'rd.cantidad')
+        ->select(
+            'r.id_requisicion',
+            'e.nombre_completo as empleado',
+            'r.fecha',
+            DB::raw('SUM(rd.subtotal) as total'),
+            DB::raw('SUM(rd.cantidad - rd.cantidad_recibida) as pendientes')
+        )
+        ->groupBy(
+            'r.id_requisicion',
+            'e.nombre_completo',
+            'r.fecha',
+            'r.created_at'
+        )
+        ->orderBy('r.created_at', 'DESC')
+        ->get();
+
+    return response()->json($data);
+}
 public function getListado()
 {
     $data = DB::table('requisiciones as r')
@@ -178,7 +207,14 @@ public function getListado()
             'r.id_requisicion',
             'e.nombre_completo as empleado',
             'r.fecha',
-            DB::raw('SUM(rd.subtotal) as total')
+            DB::raw('SUM(rd.subtotal) as total'),
+            DB::raw('SUM(
+                CASE
+                    WHEN rd.cantidad_recibida < rd.cantidad
+                    THEN rd.cantidad - rd.cantidad_recibida
+                    ELSE 0
+                END
+            ) as pendientes')
         )
         ->groupBy(
             'r.id_requisicion',
@@ -186,10 +222,59 @@ public function getListado()
             'r.fecha',
             'r.created_at'
         )
-        ->orderBy('r.created_at', 'DESC') // 🔥 ÚLTIMO PRIMERO
+        ->orderBy('r.created_at', 'DESC')
         ->get();
 
     return response()->json($data);
+}
+
+public function getListados()
+{
+    $data = DB::table('requisiciones as r')
+        ->join('requisicion_detalles as rd', 'rd.id_requisicion', '=', 'r.id_requisicion')
+        ->join('empleados as e', 'e.id_empleado', '=', 'r.id_empleado')
+        ->whereColumn('rd.cantidad_entregada', '<', 'rd.cantidad')
+        ->select(
+            'r.id_requisicion',
+            'e.nombre_completo as empleado',
+            'r.fecha',
+            DB::raw('SUM(rd.subtotal) as total'),
+            DB::raw('SUM(rd.cantidad - rd.cantidad_entregada) as pendientes')
+        )
+        ->groupBy(
+            'r.id_requisicion',
+            'e.nombre_completo',
+            'r.fecha',
+            'r.created_at'
+        )
+        ->orderBy('r.created_at', 'DESC')
+        ->get();
+
+    return response()->json($data);
+}
+public function despacho($id)
+{
+    $requisicion = Requisicion::with([
+        'empleado',
+        'programa',
+        'detalles.producto'
+    ])->findOrFail($id);
+
+    $proveedores = Proveedor::orderBy('nombre')->get();
+
+    return view('viewentregasview', compact(
+        'requisicion',
+        'proveedores'
+    ));
+}
+
+
+
+public function entregar($id)
+{
+    return view('viewentregasview', [
+        'id_requisicion' => $id
+    ]);
 }
 
 
@@ -237,6 +322,21 @@ public function verPdf($id)
     ]);
 
     return $pdf->stream("Solicitud_$id.pdf");
+}
+public function recepcionar($id)
+{
+    $requisicion = Requisicion::with([
+        'empleado',
+        'programa',
+        'detalles.producto'
+    ])->findOrFail($id);
+
+    $proveedores = Proveedor::orderBy('nombre')->get();
+
+    return view('viewrecepview', compact(
+        'requisicion',
+        'proveedores'
+    ));
 }
 
 
@@ -333,6 +433,23 @@ public function pdf($id)
     ])->setPaper('letter', 'portrait');
 
     return $pdf->stream("autorizacion_$id.pdf");
+}
+public function verNoexistencia($id)
+{
+    Carbon::setLocale('es');
+
+    $requisicion = Requisicion::with([
+        'empleado',
+        'detalles.producto'
+    ])->findOrFail($id);
+
+    $pdf = Pdf::loadView('reports.noexistencia', [
+        'requisicion' => $requisicion,
+        'fechaLarga'  => Carbon::parse($requisicion->fecha)
+                            ->translatedFormat('d \d\e F \d\e Y')
+    ])->setPaper('letter', 'portrait');
+
+    return $pdf->stream("no_existencia_$id.pdf");
 }
 }
 

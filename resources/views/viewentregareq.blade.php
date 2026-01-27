@@ -366,12 +366,11 @@ function agregarProducto(idProducto) {
 
     <!-- ✅ CANTIDAD CON SWEET ALERT -->
     <td class="border p-2 text-center">
-  <button type="button" onclick="cambiarCantidad(this)"
-    class="px-3 py-1 border rounded bg-primarySoft font-semibold hover:bg-primaryBorder">
-    1
-  </button>
-</td>
-
+      <button onclick="cambiarCantidad(this)"
+        class="px-3 py-1 border rounded bg-primarySoft font-semibold hover:bg-primaryBorder">
+        1
+      </button>
+    </td>
 
     <td class="border p-2 text-right">Q ${parseFloat(producto.precio).toFixed(2)}</td>
 

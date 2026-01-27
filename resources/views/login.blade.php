@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SGAM-SJ | Iniciar Sesión</title>
+  <title>SGAM-SJ | Login</title>
+  <link rel="icon" href="{{ asset('IMG_4761.png') }}" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- SweetAlert2 -->
@@ -185,6 +186,36 @@
         console.error('Swal error:', err);
       }
     });
+
+
+
+    let inactivityTime = 30 * 60 * 1000; // 30 minutos
+  let inactivityTimer;
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesión expirada',
+        text: 'Tu sesión ha expirado por inactividad. Serás redirigido al inicio de sesión.',
+        confirmButtonColor: '#facc15',
+        background: '#1f2937',
+        color: '#f3f4f6',
+        allowOutsideClick: false
+      }).then(() => {
+        window.location.href = "{{ route('login') }}";
+      });
+    }, inactivityTime);
+  }
+
+  // Eventos que reinician el tiempo
+  ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer, true);
+  });
+
+  // Inicializar
+  resetInactivityTimer();
 
 
   </script>

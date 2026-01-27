@@ -98,6 +98,15 @@
                     &times;
                 </button>
             </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-600">
+                    Código de Producto
+                </label>
+                <div id="nextProductoId"
+                    class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm font-semibold text-gray-700">
+                    —
+                </div>
+            </div>
 
             <form id="formProducto" class="space-y-6">
                 @csrf
@@ -202,29 +211,39 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
+    let nextProductoId = null;
+
     let productosTable;
 
     function openModalProducto(edit=false, producto=null){
-        document.getElementById('formProducto').reset();
-        productoId.value = '';
-        modalTitle.textContent = edit ? 'Editar Producto' : 'Registrar Producto';
+    document.getElementById('formProducto').reset();
+    productoId.value = '';
+    modalTitle.textContent = edit ? 'Editar Producto' : 'Registrar Producto';
 
-        if(edit && producto){
-            productoId.value = producto.id_producto;
-            nombre.value = producto.nombre;
-            marca.value = producto.marca;
-            precio.value = producto.precio;
-            detalle.value = producto.detalle;
-            stock.value = producto.stock;
-            estado.value = producto.estado;
-            id_renglon.value = producto.id_renglon;
-            id_categoria.value = producto.id_categoria;
-            id_medida.value = producto.id_medida;
-            id_ubicacion.value = producto.id_ubicacion;
-        }
+    // ===== MOSTRAR ID =====
+    const labelId = document.getElementById('nextProductoId');
 
-        modalProducto.classList.remove('hidden');
+    if(edit && producto){
+        productoId.value = producto.id_producto;
+        nombre.value = producto.nombre;
+        marca.value = producto.marca;
+        precio.value = producto.precio;
+        detalle.value = producto.detalle;
+        stock.value = producto.stock;
+        estado.value = producto.estado;
+        id_renglon.value = producto.id_renglon;
+        id_categoria.value = producto.id_categoria;
+        id_medida.value = producto.id_medida;
+        id_ubicacion.value = producto.id_ubicacion;
+
+        labelId.textContent = producto.id_producto;
+    } else {
+        labelId.textContent = nextProductoId ?? '—';
     }
+
+    modalProducto.classList.remove('hidden');
+}
+
 
     function closeModalProducto(){
         modalProducto.classList.add('hidden');
@@ -232,10 +251,14 @@
 
     function loadSelects(){
         fetch("{{ route('renglones.getAll') }}")
-            .then(r=>r.json())
-            .then(d=>{
+            .then(r => r.json())
+            .then(d => {
                 id_renglon.innerHTML = d
-                    .map(x=>`<option value="${x.id_renglon}">${x.nombre}</option>`)
+                    .map(x => `
+                        <option value="${x.id_renglon}">
+                            ${x.codigo ?? x.renglon} - ${x.nombre}
+                        </option>
+                    `)
                     .join('');
             });
 
@@ -336,6 +359,14 @@
                 const tbody = document.getElementById('productos-table-body');
                 tbody.innerHTML = '';
 
+                // ===== CALCULAR SIGUIENTE ID =====
+                if (data.length > 0) {
+                    const maxId = Math.max(...data.map(p => parseInt(p.id_producto)));
+                    nextProductoId = maxId + 1;
+                } else {
+                    nextProductoId = 1;
+                }
+
                 data.forEach(p=>{
 
                     // ===== ESTADO =====
@@ -365,12 +396,28 @@
                             <td class="text-center">Q ${parseFloat(p.precio).toFixed(2)}</td>
                             <td class="text-center">${estadoLabel}</td>
                             <td class="text-center">
-                                <button class="text-orange-600 btn-edit" data-producto='${JSON.stringify(p)}'>
-                                    <i class="fas fa-edit"></i>
+                                <button
+                                class="text-orange-400 btn-edit"
+                                title="Editar"
+                                data-producto='${JSON.stringify(p)}'>
+                                <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="text-yellow-600 btn-toggle ml-2" data-id="${p.id_producto}">
+
+                                <button
+                                    class="text-red-600 btn-toggle ml-2"
+                                    title="Cambiar estado"
+                                    data-id="${p.id_producto}">
                                     <i class="fas fa-exchange-alt"></i>
                                 </button>
+
+                                <button
+                                    class="text-blue-800 btn-kardex ml-2"
+                                    title="Ver Kardex"
+                                    data-id="${p.id_producto}">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </button>
+
+
                             </td>
                         </tr>
                     `;
@@ -405,7 +452,13 @@
                 headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}
             }).then(()=>loadProductos());
         }
+        // ===== VER KARDEX =====
+        if (e.target.closest('.btn-kardex')) {
+            const idProducto = e.target.closest('.btn-kardex').dataset.id;
+            window.location.href = `/kardex/${idProducto}`;
+        }
     });
+
 
     formProducto.addEventListener('submit', e=>{
         e.preventDefault();

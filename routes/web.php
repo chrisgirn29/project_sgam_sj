@@ -11,7 +11,19 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\RequisicionController;
 use App\Http\Controllers\RequisicionDetalleController;
+use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\RolController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\RecepcionController;
+use App\Http\Controllers\EntregaController;
+use App\Http\Controllers\CdpController;
 
+
+Route::get('/login', [UserController::class, 'loginView'])->name('login');
+Route::post('/login', [UserController::class, 'login'])->name('login.post');
+
+
+Route::middleware('auth')->group(function () {
 Route::get('/', function () {
     return view('login');
 });
@@ -49,20 +61,73 @@ Route::get('/view/see/req', function () {
 Route::get('/view/procedure', function () {
     return view('viewprocedure');
 });
-Route::get('/view/listado/requisiciones', function () {
+Route::get('/lista/view/proceso/requisciones', function () {
     return view('viewlist');
 });
 //Rutas para ver reportes de Solicitud, Requisicon, Prepedido, Autorización
 Route::get('/view/oficio/reports', function () {
     return view('reports/oficio');
 });
+//Ruta para abrir la vista Proveedores
+Route::get('/view/form/suppliers', function () {
+    return view('viewsupplier');
+});
 
+//Ruta para abrir la vista Usuarios
+Route::get('/view/form/users', function () {
+    return view('viewusers');
+});
+
+//Ruta para abrir la vista de Roles
+Route::get('/view/form/rols', function () {
+    return view('viewroles');
+});
+//Ruta para abrir la vista de Empresa
+Route::get('/view/company', function () {
+    return view('viewempresa');
+});
+//Ruta para ver la Requisicones a Recepcion
+Route::get('/view/recepcion', function () {
+    return view('viewrecepcion');
+});
+//Ruta para ver las requisciones a entrega
+Route::get('/view/despacho', function () {
+    return view('viewentrega');
+});
+//RUTA PARA VER LAS KARDEX
+Route::get('/view/detail/kardex', function () {
+    return view('viewkardex');
+});
+//RUTA PARA VER EL DETALLE DE LAS RECEPCIONES EMITIDAS
+Route::get('/view/detail/recepciones/vista', function () {
+    return view('viewdetailrecepciones');
+});
+//RUTA PARA VER UNA RECEPCION EN ESPECIFICO
+Route::get('/view/detail/unique/recepcion', function () {
+    return view('reports.recepcion');
+});
+//RUTA PARA VER EL DETALLE DE LAS ENTERGAS EMITIDAS
+Route::get('/view/detail/entregas/vista', function () {
+    return view('viewdetailentregas');
+});
+
+//RUTA PARA VER EL DETALLE DE Las REQUISICIONES
+Route::get('/detail/requisiciones/view', function () {
+    return view('viewrequisicionlist');
+});
+//RUTA PARA CREAR CDP
+Route::get('/create/cdp/view', function () {
+    return view('cdp');
+});
+//RUTA PARA LISTAR LOS CDP
+Route::get('/view/detail/cdp/view', function () {
+    return view('reports.viewcdp');
+});
 
 //---------------------------------Rutas para otros procedimientos
 //Ruta para iniciar sesion
 
-Route::get('/login', [UserController::class, 'loginView'])->name('login');
-Route::post('/login', [UserController::class, 'login'])->name('login.post');
+
 
 //Route::get('/app', [UserController::class, 'appv'])->name('app');
 Route::get('/app', [UserController::class, 'appView'])->name('app');
@@ -190,9 +255,14 @@ Route::get('/requisiciones/emitidas',
     [RequisicionController::class, 'getSolicitudesEmitidas']
 )->name('requisiciones.emitidas');
 
-Route::get('/requisiciones/listado', [RequisicionController::class, 'getListado'])
+Route::get('/requisiciones/listado', [RequisicionController::class, 'getListadoss'])
+    ->name('requisiciones.getListadoss');
+
+    Route::get('/requisiciones/proceso', [RequisicionController::class, 'getListado'])
     ->name('requisiciones.getListado');
 
+Route::get('/requisiciones/listado', [RequisicionController::class, 'getListados'])
+    ->name('requisiciones.getListados');
 
 Route::get('/requisiciones/{id}/expediente',
     [RequisicionController::class, 'expediente']
@@ -215,3 +285,155 @@ Route::get('/autorizacion/pdf/{id}', [RequisicionController::class, 'verAutoriza
     Route::get('/requisiciones/{id}/prepedido/pdf',
     [RequisicionController::class, 'prepedidoPdf']
 )->name('requisiciones.prepedido.pdf');
+
+
+/* =========================
+   PROVEEDORES
+========================= */
+Route::get('/proveedores', [ProveedorController::class, 'index'])
+    ->name('proveedores.index');
+
+Route::get('/proveedores/getAll', [ProveedorController::class, 'getAll'])
+    ->name('proveedores.getAll');
+
+Route::post('/proveedores', [ProveedorController::class, 'store'])
+    ->name('proveedores.store');
+
+Route::put('/proveedores/{id}', [ProveedorController::class, 'update']);
+
+Route::put('/proveedores/{id}/toggle-estado', [ProveedorController::class, 'toggleEstado']);
+
+//Ruta para Users
+Route::middleware('auth')->group(function () {
+    Route::get('/usuarios', [UserController::class, 'viewUsers']);
+    Route::get('/usuarios/all', [UserController::class, 'all'])->name('users.all');
+    Route::post('/usuarios', [UserController::class, 'store']);
+    Route::put('/usuarios/{id}/estado', [UserController::class, 'updateEstado']);
+Route::put('/usuarios/{id}', [UserController::class, 'update']);
+});
+
+//Rutas para Roles
+Route::middleware('auth')->group(function () {
+
+    Route::get('/roles', [RolController::class, 'index'])
+        ->name('roles.index');
+
+    Route::post('/roles', [RolController::class, 'store'])
+        ->name('roles.store');
+
+    Route::put('/roles/{id}', [RolController::class, 'update'])
+        ->name('roles.update');
+
+    Route::put('/roles/{id}/estado', [RolController::class, 'cambiarEstado'])
+        ->name('roles.estado');
+
+});
+// Roles (JSON para selects)
+Route::middleware('auth')->get('/roles/all', [RolController::class, 'all'])
+    ->name('roles.all');
+
+    //Ruta para modificar los datos de la empresa
+Route::put('/empresa/{id}', [EmpresaController::class, 'update'])->name('empresa.update');
+// Carga la vista
+Route::get('/empresa', function(){
+    return view('empresa'); // Blade: resources/views/empresa.blade.php
+})->name('empresa.view');
+
+// Devuelve los datos de la empresa en JSON
+Route::get('/empresa/data', [EmpresaController::class, 'index'])->name('empresa.data');
+// web.php
+Route::get('/empresa', [EmpresaController::class, 'index'])->name('empresa.data');
+Route::post('/empresa/update', [EmpresaController::class, 'update'])->name('empresa.update');
+Route::put('empresa', [EmpresaController::class, 'update'])->name('empresa.update');
+Route::get('/empresa/data', [EmpresaController::class, 'index'])->name('empresa.data');
+Route::post('/empresa/update', [EmpresaController::class, 'update'])->name('empresa.update');
+
+
+
+
+// web.php
+Route::get('/requisiciones/{id}/recepcionar',
+    [RequisicionController::class, 'recepcionar']
+)->name('requisiciones.recepcionar');
+
+
+Route::post('/recepciones', [RecepcionController::class, 'store'])
+    ->name('recepciones.store');
+
+Route::post('/recepciones/store', [RecepcionController::class, 'store'])
+    ->name('recepciones.store');
+
+
+    Route::get('/requisiciones/{id}/recepcionar', [RecepcionController::class, 'recepcionar'])
+    ->name('requisiciones.recepcionar');
+
+Route::post('/recepciones', [RecepcionController::class, 'store'])
+    ->name('recepciones.store');
+    Route::get('/requisiciones', [RequisicionController::class, 'index'])
+    ->name('requisiciones.index');
+
+
+    Route::get(
+    '/requisiciones/{id}/entregar',
+    [RequisicionController::class, 'entregar']
+)->name('requisiciones.entregar');
+
+Route::get(
+    '/requisiciones/{id}/detalle',
+    [RequisicionController::class, 'getDetalle']
+);
+Route::get('/requisiciones/{id}/despacho',
+    [RequisicionController::class, 'despacho']
+)->name('requisiciones.despacho');
+
+
+
+Route::post('/entregas',
+    [EntregaController::class, 'store']
+)->name('entregas.store');
+
+
+Route::get('/kardex/{id_producto}',
+    [ProductoController::class, 'kardex']
+)->name('kardex.view');
+
+Route::get('/kardex/imprimir/{id_producto}',
+    [ProductoController::class, 'imprimirKardex']
+)->name('kardex.pdf');
+Route::get('/recepciones/listado', [RecepcionController::class, 'getListadoRecepciones'])
+    ->name('recepciones.getListado');
+
+
+    Route::get(
+    '/impresion/recepcion/{id}',
+    [RecepcionController::class, 'imprimirRecepcion']
+)->name('impresion.recepcion');
+
+Route::get(
+    '/impresion/recepcion/{idRecepcion}/{idRequisicion}',
+    [RecepcionController::class, 'verPdf']
+)->name('recepcion.pdf');
+
+
+Route::get('/entregas/listado', [EntregaController::class, 'getListadoEntregas'])
+    ->name('entregas.getListado');
+
+    Route::get(
+    '/impresion/entrega/{idEntrega}/{idRequisicion}',
+    [EntregaController::class, 'imprimirEntrega']
+)->name('entregas.imprimir');
+
+Route::get('/requisiciones/{id}/no-existencia',
+    [RequisicionController::class, 'verNoexistencia']
+)->name('requisiciones.noexistencia');
+
+Route::get('/cdp/crear', [CdpController::class, 'create'])
+    ->name('cdp.create');
+
+   //Ruta para poder mandar a insertar los datos de la vista de la cdp
+   Route::post('/cdp/guardar', [CdpController::class, 'store'])->name('cdp.store');
+   Route::get('/cdp/listado', [CdpController::class, 'getListadoCdp'])
+    ->name('cdp.getListado');
+    Route::get('/cdp/{id}/pdf', [CdpController::class, 'pdfCdp'])
+    ->name('cdp.pdf');
+});
