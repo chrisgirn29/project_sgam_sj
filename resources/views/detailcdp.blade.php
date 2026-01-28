@@ -170,13 +170,25 @@ function numeroALetras($numero)
     if ($numero == 100) return 'CIEN';
 
     $texto = '';
+
+    // MILES
+    if ($numero >= 1000) {
+        $miles = intval($numero / 1000);
+        $texto .= ($miles == 1 ? 'MIL ' : $unidades[$miles] . ' MIL ');
+        $numero %= 1000;
+    }
+
+    // CENTENAS
     if ($numero >= 100) {
         $texto .= $centenas[intval($numero / 100)] . ' ';
         $numero %= 100;
     }
+
+    // DECENAS
     if ($numero >= 10 && $numero < 20) {
         return trim($texto . $especiales[$numero - 10]);
     }
+
     if ($numero >= 20) {
         $texto .= $decenas[intval($numero / 10)];
         if ($numero % 10 != 0) {
@@ -185,8 +197,10 @@ function numeroALetras($numero)
     } else {
         $texto .= $unidades[$numero];
     }
+
     return trim($texto);
 }
+
 @endphp
 
 <div class="documento">
