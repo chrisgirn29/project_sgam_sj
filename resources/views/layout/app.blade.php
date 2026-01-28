@@ -268,13 +268,22 @@
                 </div>
 
                 <div class="sidebar-text">
-                    {{ optional(Auth::user())->rol_id }}
+                <span class="font-semibold">
+                    {{
+                        match(optional(Auth::user())->rol_id) {
+                            2 => 'Administrador',
+                            1 => 'Operador',
+                            default => 'Sin rol',
+                        }
+                    }}
+                </span>
 
-                    <div class="flex items-center space-x-1">
-                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                        <p class="text-xs text-green-400 font-semibold">En línea</p>
-                    </div>
+                <div class="flex items-center space-x-1 mt-1">
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <p class="text-xs text-green-400 font-semibold">En línea</p>
                 </div>
+            </div>
+
             </div>
         </div>
 
